@@ -6,6 +6,7 @@
 const POS_KEY = 'pya_musica_pos';
 const TIME_KEY = 'pya_musica_time';
 const VOL_KEY = 'pya_musica_vol';
+const VOL_BOTONES_KEY = 'pya_boton_vol';
 
 // Referencias de audio (se usan si existen elementos <audio> en la página)
 let musica = null;
@@ -28,9 +29,11 @@ function setupAudioElements() {
   // Aplicar volumen guardado
   const vol = localStorage.getItem(VOL_KEY);
   musica.volume = vol ? parseFloat(vol) : 0.5;
+  
+  const volBotones = localStorage.getItem(VOL_BOTONES_KEY);
+  hoverSound.volume = volBotones ? parseFloat(volBotones) : 0.9;
+  selectSound.volume = volBotones ? parseFloat(volBotones) : 0.9;
   // también aplicamos a efectos si quieres (opcional): mantener algo más alto para efectos
-  hoverSound.volume = 0.9;
-  selectSound.volume = 1.0;
 }
 
 // Calcula posición a la que reanudar según último guardado + tiempo transcurrido
@@ -143,20 +146,36 @@ function conectarEfectosAElementos() {
 
 // Control de volumen en opciones
 function conectarSliderVolumen() {
-  const slider = document.getElementById('volumen');
-  if (!slider) return;
-  // inicializar slider con valor guardado
-  const vol = localStorage.getItem(VOL_KEY);
-  slider.value = vol !== null ? vol : (musica ? musica.volume : 0.5);
+  // Slider volumen de fondo
+  const sliderFondo = document.getElementById('volumenfondo');
+  if (sliderFondo) {
+    const volFondo = localStorage.getItem(VOL_KEY);
+    sliderFondo.value = volFondo !== null ? volFondo : (musica ? musica.volume : 0.5);
 
-  // al mover slider guardamos y aplicamos inmediatamente
-  slider.addEventListener('input', (e) => {
-    const val = e.target.value;
-    try {
-      localStorage.setItem(VOL_KEY, val);
-    } catch (err) { }
-    if (musica) musica.volume = parseFloat(val);
-  });
+    sliderFondo.addEventListener('input', (e) => {
+      const val = e.target.value;
+      try {
+        localStorage.setItem(VOL_KEY, val);
+      } catch (err) { }
+      if (musica) musica.volume = parseFloat(val);
+    });
+  }
+
+  // Slider volumen de botones
+  const sliderBotones = document.getElementById('botonvolumen');
+  if (sliderBotones) {
+    const volBotones = localStorage.getItem(VOL_BOTONES_KEY);
+    sliderBotones.value = volBotones !== null ? volBotones : 0.9;
+
+    sliderBotones.addEventListener('input', (e) => {
+      const val = e.target.value;
+      try {
+        localStorage.setItem(VOL_BOTONES_KEY, val);
+      } catch (err) { }
+      if (hoverSound) hoverSound.volume = parseFloat(val);
+      if (selectSound) selectSound.volume = parseFloat(val);
+    });
+  }
 }
 
 // Botón Jugar: NO navega (según tu petición actual), solo reproduce efecto
