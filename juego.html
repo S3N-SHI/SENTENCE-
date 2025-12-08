@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transcripción Extrema - Ruleta Rusa</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1a0f0a 0%, #0a0505 100%);
+      color: #f5c16c;
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .game-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2.5em;
+      text-shadow: 0 0 20px rgba(245, 193, 108, 0.5);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    /* HUD */
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(43, 31, 24, 0.8);
+      border-radius: 10px;
+      border: 2px solid #f5c16c;
+    }
+
+    .hud-item {
+      text-align: center;
+    }
+
+    .hud-label {
+      font-size: 0.9em;
+      opacity: 0.8;
+      margin-bottom: 5px;
+    }
+
+    .hud-value {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #6cf57a;
+    }
+
+    .hud-value.danger {
+      color: #ff4444;
+      animation: blink 0.5s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .errores-barra {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .error-dot {
+      width: 20px;
+      height: 20px;
+      background: #333;
+      border-radius: 50%;
+      border: 2px solid #666;
+      transition: all 0.3s;
+    }
+
+    .error-dot.activo {
+      background: #ff4444;
+      border-color: #fff;
+      box-shadow: 0 0 10px #ff4444;
+    }
+
+    /* Cuenta regresiva */
+    .countdown-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .countdown-number {
+      font-size: 15em;
+      font-weight: bold;
+      color: #f5c16c;
+      text-shadow: 0 0 50px rgba(245, 193, 108, 0.8);
+      animation: countdown-pulse 1s ease-out;
+    }
+
+    @keyframes countdown-pulse {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Contenedor de texto superpuesto */
+    .texto-container {
+      position: relative;
+      padding: 30px;
+      background: rgba(43, 31, 24, 0.6);
+      border-radius: 10px;
+      border: 3px solid #f5c16c;
+      min-height: 250px;
+      margin-bottom: 20px;
+      cursor: text;
+    }
+
+    .texto-original {
+      white-space: pre-wrap;
+      font-size: 1.5em;
+      line-height: 1.8;
+      color: rgba(245, 193, 108, 0.25);
+      font-family: 'Courier New', monospace;
+      user-select: none;
+    }
+
+    .texto-usuario-overlay {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      right: 30px;
+      white-space: pre-wrap;
+      font-size: 1.5em;
+      line-height: 1.8;
+      color: #6cf57a;
+      font-family: 'Courier New', monospace;
+      pointer-events: none;
+      text-shadow: 0 0 10px rgba(108, 245, 122, 0.5);
+    }
+
+    /* Input invisible pero funcional */
+    #entradaUsuario {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+      opacity: 0;
+    }
+
+    .error-shake {
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-15px); }
+      50% { transform: translateX(15px); }
+      75% { transform: translateX(-15px); }
+    }
+
+    /* Video overlay */
+    .video-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.98);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      flex-direction: column;
+    }
+
+    .video-overlay video {
+      max-width: 90%;
+      max-height: 80%;
+      border: 5px solid #ff4444;
+      border-radius: 10px;
+      box-shadow: 0 0 50px rgba(255, 68, 68, 0.5);
+    }
+
+    .video-info {
+      margin-top: 20px;
+      font-size: 1.5em;
+      color: #fff;
+      text-align: center;
+    }
+
+    /* Game Over */
+    .game-over {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 3000;
+    }
+
+    .game-over h2 {
+      font-size: 5em;
+      color: #ff4444;
+      margin-bottom: 30px;
+      text-shadow: 0 0 30px #ff4444;
+      animation: gameOverPulse 1s infinite;
+    }
+
+    @keyframes gameOverPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .game-over p {
+      font-size: 1.8em;
+      margin-bottom: 40px;
+      color: #fff;
+    }
+
+    .game-over button, .btn-iniciar {
+      padding: 20px 50px;
+      font-size: 1.5em;
+      background: #f5c16c;
+      color: #1a0f0a;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: bold;
+    }
+
+    .game-over button:hover, .btn-iniciar:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 30px #f5c16c;
+    }
+
+    /* Victoria */
+    .victoria {
+      text-align: center;
+      padding: 40px;
+      background: linear-gradient(135deg, rgba(108, 245, 122, 0.3), rgba(108, 245, 122, 0.1));
+      border: 3px solid #6cf57a;
+      border-radius: 10px;
+      margin-top: 20px;
+      display: none;
+      box-shadow: 0 0 50px rgba(108, 245, 122, 0.3);
+    }
+
+    .victoria h2 {
+      font-size: 3.5em;
+      color: #6cf57a;
+      margin-bottom: 20px;
+      text-shadow: 0 0 30px #6cf57a;
+      animation: victoryPulse 1.5s infinite;
+    }
+
+    @keyframes victoryPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .victoria p {
+      font-size: 1.5em;
+      margin: 15px 0;
+    }
+
+    /* Instrucciones */
+    .instrucciones {
+      text-align: center;
+      margin: 20px 0;
+      padding: 30px;
+      background: rgba(43, 31, 24, 0.8);
+      border-radius: 10px;
+      border: 2px solid #f5c16c;
+    }
+
+    .instrucciones h3 {
+      margin-bottom: 20px;
+      color: #f5c16c;
+      font-size: 1.8em;
+    }
+
+    .instrucciones p {
+      margin: 12px 0;
+      line-height: 1.8;
+      font-size: 1.1em;
+    }
+
+    .instrucciones .destacado {
+      color: #ff4444;
+      font-weight: bold;
+      font-size: 1.2em;
+      margin: 20px 0;
+    }
+
+    .btn-iniciar {
+      display: block;
+      margin: 30px auto 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>🎲 TRANSCRIPCIÓN EXTREMA - RULETA RUSA 🎲</h1>
+
+    <!-- Instrucciones -->
+    <div class="instrucciones" id="instrucciones">
+      <h3>⚠️ REGLAS SENTENCE! ⚠️</h3>
+      <p>✍️ Escribe el texto EXACTAMENTE como aparece</p>
+      <p>🎯 Puedes cometer hasta <strong>3 ERRORES</strong> antes de entrar en un sorteo</p>
+      <p>🎲 Al 3er error → <strong>SORTEO VIVES/MUERES</strong></p>
+      <div class="destacado">
+        🎬 VIDEOS:<br>
+        "hable_bien.mp4" = SALVADO (pero bajan probabilidades)<br>
+        "valio_vrg.mp4" = GAME OVER DEFINITIVO 💀
+      </div>
+      <p>📊 Probabilidades: 1/5 → 1/4 → 1/3 → 1/2 → 1/1 (muerte segura)</p>
+      <p>⏱️ El cronómetro se pausa durante los videos</p>
+      <p style="margin-top: 20px; opacity: 0.8; font-size: 0.9em;">⚠️ No puedes copiar y pegar</p>
+      <button class="btn-iniciar" onclick="iniciarJuego()">¡COMENZAR LA RULETA!</button>
+    </div>
+
+    <!-- HUD del juego -->
+    <div class="hud" style="display: none;" id="hud">
+      <div class="hud-item">
+        <div class="hud-label">⏱️ TIEMPO</div>
+        <div class="hud-value" id="tiempo">00:00</div>
+      </div>
+      <div class="hud-item">
+        <div class="hud-label">📊 RULETA</div>
+        <div class="hud-value" id="probabilidad">1/5</div>
+      </div>
+      <div class="hud-item">
+        <div class="hud-label">❌ ERRORES</div>
+        <div class="hud-value" id="contadorErrores">0/3</div>
+        <div class="errores-barra">
+          <div class="error-dot" id="error1"></div>
+          <div class="error-dot" id="error2"></div>
+          <div class="error-dot" id="error3"></div>
+        </div>
+      </div>
+      <div class="hud-item">
+        <div class="hud-label">📈 PROGRESO</div>
+        <div class="hud-value" id="progreso">0%</div>
+      </div>
+    </div>
+
+    <!-- Contenedor de texto superpuesto -->
+    <div class="texto-container" id="textoContainer" style="display: none;" tabindex="0">
+      <div class="texto-original" id="textoOriginal">Cuando de nuestro amor la llama apasionada
+Dentro tu pecho amante, contemples extinguida
+Ya que solo por ti la vida me es amada
+El día en que me faltes me arrancaré la vida.</div>
+      <div class="texto-usuario-overlay" id="textoUsuarioOverlay"></div>
+    </div>
+
+    <!-- Input invisible pero funcional -->
+    <textarea id="entradaUsuario" spellcheck="false"></textarea>
+
+    <!-- Victoria -->
+    <div class="victoria" id="victoria">
+      <h2>🎉 ¡SOBREVIVISTE! 🎉</h2>
+      <p id="tiempoFinal"></p>
+      <p id="estadisticas"></p>
+      <button class="btn-iniciar" onclick="location.reload()">Jugar de nuevo</button>
+    </div>
+  </div>
+
+  <!-- Cuenta regresiva -->
+  <div class="countdown-overlay" id="countdown" style="display: none;">
+    <div class="countdown-number" id="countdownNumber">3</div>
+  </div>
+
+  <!-- Video overlay -->
+  <div class="video-overlay" id="videoOverlay">
+    <video id="videoPlayer"></video>
+    <div class="video-info" id="videoInfo"></div>
+  </div>
+
+  <!-- Game Over -->
+  <div class="game-over" id="gameOver">
+    <h2>💀 GAME OVER 💀</h2>
+    <p id="mensajeGameOver">¡Valió Vrg!</p>
+    <button onclick="location.reload()">Intentar de nuevo</button>
+  </div>
+
+  <script>
+    // ============================================
+    // VARIABLES GLOBALES
+    // ============================================
+    let textoOriginal = '';
+    let erroresActuales = 0;
+    let probabilidadActual = 5; // 1 en 5
+    let tiempoInicio = 0;
+    let tiempoTranscurrido = 0;
+    let timerInterval = null;
+    let juegoActivo = false;
+    let totalSorteos = 0;
+    let totalErrores = 0;
+
+    const entrada = document.getElementById('entradaUsuario');
+    const textoOriginalEl = document.getElementById('textoOriginal');
+    const textoUsuarioOverlay = document.getElementById('textoUsuarioOverlay');
+    const textoContainer = document.getElementById('textoContainer');
+
+    // ============================================
+    // LIMPIEZA Y NORMALIZACIÓN
+    // ============================================
+    function limpiarTexto(s) {
+      if (typeof s !== 'string') s = String(s);
+      s = s.replace(/[\uFEFF\u00A0\u200B-\u200F\u2028\u2029\u2060]/g, '');
+      s = s.replace(/\r/g, '');
+      try { s = s.normalize('NFC'); } catch (e) {}
+      return s;
+    }
+
+    // ============================================
+    // INICIO DEL JUEGO
+    // ============================================
+    function iniciarJuego() {
+      document.getElementById('instrucciones').style.display = 'none';
+      document.getElementById('hud').style.display = 'grid';
+      textoContainer.style.display = 'block';
+
+      const textoRaw = textoOriginalEl.textContent;
+      textoOriginal = limpiarTexto(textoRaw).trim();
+
+      erroresActuales = 0;
+      probabilidadActual = 5;
+      totalSorteos = 0;
+      totalErrores = 0;
+      actualizarErrores();
+      actualizarProbabilidad();
+
+      mostrarCuentaRegresiva();
+    }
+
+    // ============================================
+    // CUENTA REGRESIVA
+    // ============================================
+    function mostrarCuentaRegresiva() {
+      const countdownEl = document.getElementById('countdown');
+      const numberEl = document.getElementById('countdownNumber');
+      
+      countdownEl.style.display = 'flex';
+      let contador = 3;
+
+      const intervalo = setInterval(() => {
+        if (contador > 0) {
+          numberEl.textContent = contador;
+          numberEl.style.animation = 'none';
+          setTimeout(() => numberEl.style.animation = 'countdown-pulse 1s ease-out', 10);
+          contador--;
+        } else {
+          clearInterval(intervalo);
+          countdownEl.style.display = 'none';
+          comenzarJuego();
+        }
+      }, 1000);
+    }
+
+    // ============================================
+    // COMENZAR JUEGO
+    // ============================================
+    function comenzarJuego() {
+      juegoActivo = true;
+      entrada.focus();
+      
+      tiempoInicio = Date.now();
+      timerInterval = setInterval(actualizarCronometro, 100);
+
+      entrada.addEventListener('input', validarTexto);
+      entrada.addEventListener('paste', (e) => {
+        e.preventDefault();
+        alert("❌ ¡No puedes copiar y pegar!");
+      });
+
+      // Click en el contenedor enfoca el input
+      textoContainer.addEventListener('click', () => {
+        if (juegoActivo) entrada.focus();
+      });
+    }
+
+    // ============================================
+    // VALIDACIÓN EN TIEMPO REAL
+    // ============================================
+    function validarTexto() {
+      if (!juegoActivo) return;
+
+      const valorRaw = entrada.value;
+      const valor = limpiarTexto(valorRaw);
+      const esperado = textoOriginal.slice(0, valor.length);
+
+      textoUsuarioOverlay.textContent = valor;
+
+      if (valor.length > textoOriginal.length) {
+        registrarError();
+        return;
+      }
+
+      if (valor === esperado) {
+        const porcentaje = Math.round((valor.length / textoOriginal.length) * 100);
+        document.getElementById('progreso').textContent = porcentaje + '%';
+
+        if (valor === textoOriginal) {
+          victoria();
+        }
+      } else {
+        registrarError();
+      }
+    }
+
+    // ============================================
+    // REGISTRAR ERROR
+    // ============================================
+    function registrarError() {
+      juegoActivo = false;
+      totalErrores++;
+      erroresActuales++;
+      
+      textoContainer.classList.add('error-shake');
+      setTimeout(() => textoContainer.classList.remove('error-shake'), 500);
+
+      actualizarErrores();
+
+      if (erroresActuales >= 3) {
+        // SORTEO DE RULETA RUSA
+        pausarCronometro();
+        setTimeout(() => sortearRuletaRusa(), 1000);
+      } else {
+        // Resetear y continuar
+        setTimeout(() => {
+          entrada.value = '';
+          textoUsuarioOverlay.textContent = '';
+          juegoActivo = true;
+          entrada.focus();
+        }, 1000);
+      }
+    }
+
+    // ============================================
+    // SORTEO DE RULETA RUSA
+    // ============================================
+    function sortearRuletaRusa() {
+      totalSorteos++;
+      const random = Math.floor(Math.random() * probabilidadActual) + 1;
+
+      console.log(`🎲 Sorteo #${totalSorteos}: ${random} de ${probabilidadActual}`);
+
+      if (random === 1 || probabilidadActual === 1) {
+        // MUERTE - Game Over
+        reproducirVideo('valio_vrg.mp4', true);
+      } else {
+        // SALVADO - pero bajan probabilidades
+        reproducirVideo('hable_bien.mp4', false);
+      }
+    }
+
+    // ============================================
+    // REPRODUCIR VIDEO
+    // ============================================
+    function reproducirVideo(nombreVideo, esGameOver) {
+      const overlay = document.getElementById('videoOverlay');
+      const player = document.getElementById('videoPlayer');
+      const info = document.getElementById('videoInfo');
+
+      player.src = nombreVideo;
+      overlay.style.display = 'flex';
+      
+      if (esGameOver) {
+        info.textContent = '💀 VALIÓ VRG - GAME OVER 💀';
+        info.style.color = '#ff4444';
+      } else {
+        info.textContent = '⚠️ TE SALVASTE ESTA VEZ... ⚠️';
+        info.style.color = '#f5c16c';
+      }
+
+      player.play();
+
+      player.onended = () => {
+        overlay.style.display = 'none';
+        
+        if (esGameOver) {
+          gameOver();
+        } else {
+          // Continuar - bajar probabilidad
+          if (probabilidadActual > 1) {
+            probabilidadActual--;
+          }
+          actualizarProbabilidad();
+          
+          erroresActuales = 0;
+          actualizarErrores();
+          entrada.value = '';
+          textoUsuarioOverlay.textContent = '';
+          reanudarCronometro();
+          juegoActivo = true;
+          entrada.focus();
+        }
+      };
+
+      // Fallback si no carga el video
+      player.onerror = () => {
+        console.warn('Video no encontrado:', nombreVideo);
+        overlay.style.display = 'none';
+        
+        if (esGameOver) {
+          gameOver();
+        } else {
+          alert('⚠️ TE SALVASTE (video no encontrado)');
+          if (probabilidadActual > 1) probabilidadActual--;
+          actualizarProbabilidad();
+          erroresActuales = 0;
+          actualizarErrores();
+          entrada.value = '';
+          textoUsuarioOverlay.textContent = '';
+          reanudarCronometro();
+          juegoActivo = true;
+          entrada.focus();
+        }
+      };
+    }
+
+    // ============================================
+    // CRONÓMETRO
+    // ============================================
+    function actualizarCronometro() {
+      tiempoTranscurrido = Date.now() - tiempoInicio;
+      const segundos = Math.floor(tiempoTranscurrido / 1000);
+      const minutos = Math.floor(segundos / 60);
+      const segs = segundos % 60;
+      document.getElementById('tiempo').textContent = 
+        `${String(minutos).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
+    }
+
+    function pausarCronometro() {
+      clearInterval(timerInterval);
+      tiempoTranscurrido = Date.now() - tiempoInicio;
+    }
+
+    function reanudarCronometro() {
+      tiempoInicio = Date.now() - tiempoTranscurrido;
+      timerInterval = setInterval(actualizarCronometro, 100);
+    }
+
+    // ============================================
+    // UI UPDATES
+    // ============================================
+    function actualizarErrores() {
+      document.getElementById('contadorErrores').textContent = `${erroresActuales}/3`;
+      
+      for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById(`error${i}`);
+        if (i <= erroresActuales) {
+          dot.classList.add('activo');
+        } else {
+          dot.classList.remove('activo');
+        }
+      }
+
+      if (erroresActuales >= 2) {
+        document.getElementById('contadorErrores').classList.add('danger');
+      } else {
+        document.getElementById('contadorErrores').classList.remove('danger');
+      }
+    }
+
+    function actualizarProbabilidad() {
+      const probEl = document.getElementById('probabilidad');
+      probEl.textContent = `1/${probabilidadActual}`;
+      
+      if (probabilidadActual <= 2) {
+        probEl.classList.add('danger');
+      } else {
+        probEl.classList.remove('danger');
+      }
+    }
+
+    // ============================================
+    // GAME OVER Y VICTORIA
+    // ============================================
+    function gameOver() {
+      clearInterval(timerInterval);
+      const segundos = Math.floor(tiempoTranscurrido / 1000);
+      document.getElementById('mensajeGameOver').textContent = 
+        `Sobreviviste ${segundos} segundos y ${totalSorteos} sorteos antes de morir`;
+      document.getElementById('gameOver').style.display = 'flex';
+    }
+
+    function victoria() {
+      clearInterval(timerInterval);
+      juegoActivo = false;
+      textoContainer.style.display = 'none';
+      document.getElementById('victoria').style.display = 'block';
+      
+      const segundos = Math.floor(tiempoTranscurrido / 1000);
+      const minutos = Math.floor(segundos / 60);
+      const segs = segundos % 60;
+      
+      document.getElementById('tiempoFinal').textContent = 
+        `⏱️ Tiempo: ${minutos}:${String(segs).padStart(2, '0')}`;
+      
+      document.getElementById('estadisticas').textContent = 
+        `📊 Errores totales: ${totalErrores} | Sorteos: ${totalSorteos} | Probabilidad final: 1/${probabilidadActual}`;
+    }
+  </script>
+</body>
+</html>
