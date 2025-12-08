@@ -98,14 +98,23 @@ function comenzarGuardadoPeriodo() {
   }, 300); // cada 300 ms
 }
 
-// Restaurar volumen desde slider o localStorage
 function aplicarVolumenDesdeLocalStorage() {
+  // Volumen de la música de fondo
   const vol = localStorage.getItem(VOL_KEY);
   if (vol !== null && musica) {
     musica.volume = parseFloat(vol);
   }
-  const slider = document.getElementById('volumen');
-  if (slider && vol !== null) slider.value = vol;
+  const sliderFondo = document.getElementById('volumenfondo');
+  if (sliderFondo && vol !== null) sliderFondo.value = vol;
+
+  // Volumen de los efectos de botones
+  const volBot = localStorage.getItem(VOL_BOTONES_KEY);
+  if (volBot !== null) {
+    if (hoverSound) hoverSound.volume = parseFloat(volBot);
+    if (selectSound) selectSound.volume = parseFloat(volBot);
+  }
+  const sliderBot = document.getElementById('botonvolumen');
+  if (sliderBot && volBot !== null) sliderBot.value = volBot;
 }
 
 // Reanudar reproducción si el navegador bloqueó autoplay: escuchamos la primera interacción
