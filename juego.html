@@ -1,17 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SENTENCE!</title>
+  <title>Transcripción Extrema - Ruleta Rusa</title>
   <link rel="stylesheet" href="styles.css">
-  <script defer src="script.js"></script>
 </head>
-
 <body>
   <div class="game-container">
-    <h1>SENTENCE!</h1>
+    <h1>🎲 TRANSCRIPCIÓN EXTREMA - RULETA RUSA 🎲</h1>
 
     <!-- Instrucciones -->
     <div class="instrucciones" id="instrucciones">
@@ -20,76 +17,77 @@
       <p>🎯 Puedes cometer hasta <strong>3 ERRORES</strong> antes de entrar en un sorteo</p>
       <p>🎲 Al 3er error → <strong>SORTEO VIVES/MUERES</strong></p>
       <div class="destacado">
-
-        <p>📊 Probabilidades: 1/5 → 1/4 → 1/3 → 1/2 → 1/1 (muerte segura)</p>
-        <p>⏱️ El cronómetro se pausa durante los videos</p>
-        <p style="margin-top: 20px; opacity: 0.8; font-size: 0.9em;">⚠️ No puedes copiar y pegar</p>
-        <button class="btn-iniciar" onclick="iniciarJuego()">¡COMENZAR LA RULETA!</button>
       </div>
+      <p>📊 Probabilidades: 1/5 → 1/4 → 1/3 → 1/2 → 1/1 (muerte segura)</p>
+      <p>⏱️ El cronómetro se pausa durante los videos</p>
+      <p style="margin-top: 20px; opacity: 0.8; font-size: 0.9em;">⚠️ No puedes copiar y pegar</p>
+      <button class="btn-iniciar" onclick="iniciarJuego()">¡COMENZAR LA RULETA!</button>
+    </div>
 
-      <!-- HUD del juego -->
-      <div class="hud" style="display: none;" id="hud">
-        <div class="hud-item">
-          <div class="hud-label">⏱️ TIEMPO</div>
-          <div class="hud-value" id="tiempo">00:00</div>
-        </div>
-        <div class="hud-item">
-          <div class="hud-label">📊 RULETA</div>
-          <div class="hud-value" id="probabilidad">1/5</div>
-        </div>
-        <div class="hud-item">
-          <div class="hud-label">❌ ERRORES</div>
-          <div class="hud-value" id="contadorErrores">0/3</div>
-          <div class="errores-barra">
-            <div class="error-dot" id="error1"></div>
-            <div class="error-dot" id="error2"></div>
-            <div class="error-dot" id="error3"></div>
-          </div>
-        </div>
-        <div class="hud-item">
-          <div class="hud-label">📈 PROGRESO</div>
-          <div class="hud-value" id="progreso">0%</div>
+    <!-- HUD del juego -->
+    <div class="hud" style="display: none;" id="hud">
+      <div class="hud-item">
+        <div class="hud-label">⏱️ TIEMPO</div>
+        <div class="hud-value" id="tiempo">00:00</div>
+      </div>
+      <div class="hud-item">
+        <div class="hud-label">📊 RULETA</div>
+        <div class="hud-value" id="probabilidad">1/5</div>
+      </div>
+      <div class="hud-item">
+        <div class="hud-label">❌ ERRORES</div>
+        <div class="hud-value" id="contadorErrores">0/3</div>
+        <div class="errores-barra">
+          <div class="error-dot" id="error1"></div>
+          <div class="error-dot" id="error2"></div>
+          <div class="error-dot" id="error3"></div>
         </div>
       </div>
-
-      <!-- Contenedor de texto superpuesto -->
-      <div class="texto-container" id="textoContainer" style="display: none;" tabindex="0">
-        <div class="texto-original" id="textoOriginal">Cuando de nuestro amor la llama apasionada
-          Dentro tu pecho amante, contemples extinguida
-          Ya que solo por ti la vida me es amada
-          El día en que me faltes me arrancaré la vida.</div>
-        <div class="texto-usuario-overlay" id="textoUsuarioOverlay"></div>
-      </div>
-
-      <!-- Input invisible pero funcional -->
-      <textarea id="entradaUsuario" spellcheck="false"></textarea>
-
-      <!-- Victoria -->
-      <div class="victoria" id="victoria">
-        <h2>🎉 ¡SOBREVIVISTE! 🎉</h2>
-        <p id="tiempoFinal"></p>
-        <p id="estadisticas"></p>
-        <button class="btn-iniciar" onclick="location.reload()">Jugar de nuevo</button>
+      <div class="hud-item">
+        <div class="hud-label">📈 PROGRESO</div>
+        <div class="hud-value" id="progreso">0%</div>
       </div>
     </div>
 
-    <!-- Cuenta regresiva -->
-    <div class="countdown-overlay" id="countdown" style="display: none;">
-      <div class="countdown-number" id="countdownNumber">3</div>
+    <!-- Contenedor de texto superpuesto -->
+    <div class="texto-container" id="textoContainer" style="display: none;" tabindex="0">
+      <div class="texto-original" id="textoOriginal">Cuando de nuestro amor la llama apasionada
+Dentro tu pecho amante, contemples extinguida
+Ya que solo por ti la vida me es amada
+El día en que me faltes me arrancaré la vida.</div>
+      <div class="texto-usuario-overlay" id="textoUsuarioOverlay"></div>
     </div>
 
-    <!-- Video overlay -->
-    <div class="video-overlay" id="videoOverlay">
-      <video id="videoPlayer"></video>
-      <div class="video-info" id="videoInfo"></div>
-    </div>
+    <!-- Input invisible pero funcional -->
+    <textarea id="entradaUsuario" spellcheck="false"></textarea>
 
-    <!-- Game Over -->
-    <div class="game-over" id="gameOver">
-      <h2>💀 GAME OVER 💀</h2>
-      <p id="mensajeGameOver">¡Valió Vrg!</p>
-      <button onclick="location.reload()">Intentar de nuevo</button>
+    <!-- Victoria -->
+    <div class="victoria" id="victoria">
+      <h2>🎉 ¡SOBREVIVISTE! 🎉</h2>
+      <p id="tiempoFinal"></p>
+      <p id="estadisticas"></p>
+      <button class="btn-iniciar" onclick="location.reload()">Jugar de nuevo</button>
     </div>
+  </div>
+
+  <!-- Cuenta regresiva -->
+  <div class="countdown-overlay" id="countdown" style="display: none;">
+    <div class="countdown-number" id="countdownNumber">3</div>
+  </div>
+
+  <!-- Video overlay -->
+  <div class="video-overlay" id="videoOverlay">
+    <video id="videoPlayer"></video>
+    <div class="video-info" id="videoInfo"></div>
+  </div>
+
+  <!-- Game Over -->
+  <div class="game-over" id="gameOver">
+    <h2>💀 GAME OVER 💀</h2>
+    <p id="mensajeGameOver">¡Valió Vrg!</p>
+    <button onclick="location.reload()">Intentar de nuevo</button>
+  </div>
+
+  <script src="script.js"></script>
 </body>
-
 </html>
