@@ -239,3 +239,326 @@ window.addEventListener('beforeunload', () => {
   } catch (e) { }
 });
 
+
+//--------------------------------------------------------//
+                        // JUEGO
+//--------------------------------------------------------//
+
+// ============================================
+// VARIABLES GLOBALES
+// ============================================
+let textoOriginal = '';
+let erroresActuales = 0;
+let probabilidadActual = 5; // 1 en 5
+let tiempoInicio = 0;
+let tiempoTranscurrido = 0;
+let timerInterval = null;
+let juegoActivo = false;
+let totalSorteos = 0;
+let totalErrores = 0;
+
+const entrada = document.getElementById('entradaUsuario');
+const textoOriginalEl = document.getElementById('textoOriginal');
+const textoUsuarioOverlay = document.getElementById('textoUsuarioOverlay');
+const textoContainer = document.getElementById('textoContainer');
+
+// ============================================
+// LIMPIEZA Y NORMALIZACIÓN
+// ============================================
+function limpiarTexto(s) {
+  if (typeof s !== 'string') s = String(s);
+  s = s.replace(/[\uFEFF\u00A0\u200B-\u200F\u2028\u2029\u2060]/g, '');
+  s = s.replace(/\r/g, '');
+  try { s = s.normalize('NFC'); } catch (e) {}
+  return s;
+}
+
+// ============================================
+// INICIO DEL JUEGO
+// ============================================
+function iniciarJuego() {
+  document.getElementById('instrucciones').style.display = 'none';
+  document.getElementById('hud').style.display = 'grid';
+  textoContainer.style.display = 'block';
+
+  const textoRaw = textoOriginalEl.textContent;
+  textoOriginal = limpiarTexto(textoRaw).trim();
+
+  erroresActuales = 0;
+  probabilidadActual = 5;
+  totalSorteos = 0;
+  totalErrores = 0;
+  actualizarErrores();
+  actualizarProbabilidad();
+
+  mostrarCuentaRegresiva();
+}
+
+// ============================================
+// CUENTA REGRESIVA
+// ============================================
+function mostrarCuentaRegresiva() {
+  const countdownEl = document.getElementById('countdown');
+  const numberEl = document.getElementById('countdownNumber');
+  
+  countdownEl.style.display = 'flex';
+  let contador = 3;
+
+  const intervalo = setInterval(() => {
+    if (contador > 0) {
+      numberEl.textContent = contador;
+      numberEl.style.animation = 'none';
+      setTimeout(() => numberEl.style.animation = 'countdown-pulse 1s ease-out', 10);
+      contador--;
+    } else {
+      clearInterval(intervalo);
+      countdownEl.style.display = 'none';
+      comenzarJuego();
+    }
+  }, 1000);
+}
+
+// ============================================
+// COMENZAR JUEGO
+// ============================================
+function comenzarJuego() {
+  juegoActivo = true;
+  entrada.focus();
+  
+  tiempoInicio = Date.now();
+  timerInterval = setInterval(actualizarCronometro, 100);
+
+  entrada.addEventListener('input', validarTexto);
+  entrada.addEventListener('paste', (e) => {
+    e.preventDefault();
+    alert("❌ ¡No puedes copiar y pegar!");
+  });
+
+  // Click en el contenedor enfoca el input
+  textoContainer.addEventListener('click', () => {
+    if (juegoActivo) entrada.focus();
+  });
+}
+
+// ============================================
+// VALIDACIÓN EN TIEMPO REAL
+// ============================================
+function validarTexto() {
+  if (!juegoActivo) return;
+
+  const valorRaw = entrada.value;
+  const valor = limpiarTexto(valorRaw);
+  const esperado = textoOriginal.slice(0, valor.length);
+
+  textoUsuarioOverlay.textContent = valor;
+
+  if (valor.length > textoOriginal.length) {
+    registrarError();
+    return;
+  }
+
+  if (valor === esperado) {
+    const porcentaje = Math.round((valor.length / textoOriginal.length) * 100);
+    document.getElementById('progreso').textContent = porcentaje + '%';
+
+    if (valor === textoOriginal) {
+      victoria();
+    }
+  } else {
+    registrarError();
+  }
+}
+
+// ============================================
+// REGISTRAR ERROR
+// ============================================
+function registrarError() {
+  juegoActivo = false;
+  totalErrores++;
+  erroresActuales++;
+  
+  textoContainer.classList.add('error-shake');
+  setTimeout(() => textoContainer.classList.remove('error-shake'), 500);
+
+  actualizarErrores();
+
+  if (erroresActuales >= 3) {
+    // SORTEO DE RULETA RUSA
+    pausarCronometro();
+    setTimeout(() => sortearRuletaRusa(), 1000);
+  } else {
+    // Resetear y continuar
+    setTimeout(() => {
+      entrada.value = '';
+      textoUsuarioOverlay.textContent = '';
+      juegoActivo = true;
+      entrada.focus();
+    }, 1000);
+  }
+}
+
+    // ============================================
+    // SORTEO DE RULETA RUSA
+    // ============================================
+    function sortearRuletaRusa() {
+      totalSorteos++;
+      const random = Math.floor(Math.random() * probabilidadActual) + 1;
+
+      console.log(`🎲 Sorteo #${totalSorteos}: ${random} de ${probabilidadActual}`);
+
+      if (random === 1 || probabilidadActual === 1) {
+        // MUERTE - Game Over
+        reproducirVideo('videos/valio_vrg.mp4', true);
+      } else {
+        // SALVADO - pero bajan probabilidades
+        reproducirVideo('videos/hable_bien.mp4', false);
+      }
+    }
+// ============================================
+// REPRODUCIR VIDEO
+// ============================================
+function reproducirVideo(nombreVideo, esGameOver) {
+  const overlay = document.getElementById('videoOverlay');
+  const player = document.getElementById('videoPlayer');
+  const info = document.getElementById('videoInfo');
+
+  player.src = nombreVideo;
+  overlay.style.display = 'flex';
+  
+  if (esGameOver) {
+    info.textContent = '💀 VALIÓ VRG - GAME OVER 💀';
+    info.style.color = '#ff4444';
+  } else {
+    info.textContent = '⚠️ TE SALVASTE ESTA VEZ... ⚠️';
+    info.style.color = '#f5c16c';
+  }
+
+  player.play();
+
+  player.onended = () => {
+    overlay.style.display = 'none';
+    
+    if (esGameOver) {
+      gameOver();
+    } else {
+      // Continuar - bajar probabilidad
+      if (probabilidadActual > 1) {
+        probabilidadActual--;
+      }
+      actualizarProbabilidad();
+      
+      erroresActuales = 0;
+      actualizarErrores();
+      entrada.value = '';
+      textoUsuarioOverlay.textContent = '';
+      reanudarCronometro();
+      juegoActivo = true;
+      entrada.focus();
+    }
+  };
+
+  // Fallback si no carga el video
+  player.onerror = () => {
+    console.warn('Video no encontrado:', nombreVideo);
+    overlay.style.display = 'none';
+    
+    if (esGameOver) {
+      gameOver();
+    } else {
+      alert('⚠️ TE SALVASTE (video no encontrado)');
+      if (probabilidadActual > 1) probabilidadActual--;
+      actualizarProbabilidad();
+      erroresActuales = 0;
+      actualizarErrores();
+      entrada.value = '';
+      textoUsuarioOverlay.textContent = '';
+      reanudarCronometro();
+      juegoActivo = true;
+      entrada.focus();
+    }
+  };
+}
+
+// ============================================
+// CRONÓMETRO
+// ============================================
+function actualizarCronometro() {
+  tiempoTranscurrido = Date.now() - tiempoInicio;
+  const segundos = Math.floor(tiempoTranscurrido / 1000);
+  const minutos = Math.floor(segundos / 60);
+  const segs = segundos % 60;
+  document.getElementById('tiempo').textContent = 
+    `${String(minutos).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
+}
+
+function pausarCronometro() {
+  clearInterval(timerInterval);
+  tiempoTranscurrido = Date.now() - tiempoInicio;
+}
+
+function reanudarCronometro() {
+  tiempoInicio = Date.now() - tiempoTranscurrido;
+  timerInterval = setInterval(actualizarCronometro, 100);
+}
+
+// ============================================
+// UI UPDATES
+// ============================================
+function actualizarErrores() {
+  document.getElementById('contadorErrores').textContent = `${erroresActuales}/3`;
+  
+  for (let i = 1; i <= 3; i++) {
+    const dot = document.getElementById(`error${i}`);
+    if (i <= erroresActuales) {
+      dot.classList.add('activo');
+    } else {
+      dot.classList.remove('activo');
+    }
+  }
+
+  if (erroresActuales >= 2) {
+    document.getElementById('contadorErrores').classList.add('danger');
+  } else {
+    document.getElementById('contadorErrores').classList.remove('danger');
+  }
+}
+
+function actualizarProbabilidad() {
+  const probEl = document.getElementById('probabilidad');
+  probEl.textContent = `1/${probabilidadActual}`;
+  
+  if (probabilidadActual <= 2) {
+    probEl.classList.add('danger');
+  } else {
+    probEl.classList.remove('danger');
+  }
+}
+
+// ============================================
+// GAME OVER Y VICTORIA
+// ============================================
+function gameOver() {
+  clearInterval(timerInterval);
+  const segundos = Math.floor(tiempoTranscurrido / 1000);
+  document.getElementById('mensajeGameOver').textContent = 
+    `Sobreviviste ${segundos} segundos y ${totalSorteos} sorteos antes de morir`;
+  document.getElementById('gameOver').style.display = 'flex';
+}
+
+function victoria() {
+  clearInterval(timerInterval);
+  juegoActivo = false;
+  textoContainer.style.display = 'none';
+  document.getElementById('victoria').style.display = 'block';
+  
+  const segundos = Math.floor(tiempoTranscurrido / 1000);
+  const minutos = Math.floor(segundos / 60);
+  const segs = segundos % 60;
+  
+  document.getElementById('tiempoFinal').textContent = 
+    `⏱️ Tiempo: ${minutos}:${String(segs).padStart(2, '0')}`;
+  
+  document.getElementById('estadisticas').textContent = 
+    `📊 Errores totales: ${totalErrores} | Sorteos: ${totalSorteos} | Probabilidad final: 1/${probabilidadActual}`;
+}
+
