@@ -1,58 +1,55 @@
 <!doctype html>
 <html lang="es">
 
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>SENTENCE! — Bienvenidos</title>
-        <link rel="stylesheet" href="styles.css">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link
-            href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Roboto+Slab:wght@300;700&display=swap"
-            rel="stylesheet">
-        <script defer src="script.js"></script>
-    </head>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SENTENCE! — Bienvenidos</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Roboto+Slab:wght@300;700&display=swap"
+        rel="stylesheet">
+    <script defer src="script.js"></script>
+</head>
 
-    <body>
-        <!-- audio elements: preload=auto para evitar latencia en efectos -->
-        <audio id="musicaFondo" src="sonido/sala_principal.mp3" loop
-            preload="auto"></audio>
-        <audio id="hoverSound" src="sonido/hover.mp3" preload="auto"></audio>
-        <audio id="selectSound" src="sonido/SELEC.mp3" preload="auto"></audio>
+<body>
+    <!-- audio elements: preload=auto para evitar latencia en efectos -->
+    <audio id="musicaFondo" src="sonido/sala_principal.mp3" loop preload="auto"></audio>
+    <audio id="hoverSound" src="sonido/hover.mp3" preload="auto"></audio>
+    <audio id="selectSound" src="sonido/SELEC.mp3" preload="auto"></audio>
 
-        <main class="container">
-            <header class="intro">
-                <h1 class="title">SENTENCE!/h1>
+    <main class="container">
+        <header class="intro">
+            <h1 class="title">SENTENCE! </h1>
                 <p class="tag" id="typewriter">Un juego de palabras, tinta y
                     decisiones.</p>
-            </header>
+        </header>
 
-            <section class="paper">
-                <p class="lead">Bienvenido, escritor. Antes de comenzar, afina
-                    tu pluma y elige tu destino: crear relatos,
-                    resolver acertijos o editar frases memorables.</p>
+        <section class="paper">
+            <p class="lead">Bienvenido, escritor. Antes de comenzar, afina
+                tu pluma y elige tu destino: crear relatos,
+                resolver acertijos o editar frases memorables.</p>
 
-                <nav class="menu">
-                    <!-- Agregar botones de navegación y sus enlaces -->
-                    <a href="juego.html" class="btn" id="btnJugar">Jugar</a>
-                    <a href="acerca.html" class="btn" id="btnAcerca">Acerca
-                        de</a>
-                    <a href="opciones.html" class="btn"
-                        id="btnOpciones">Opciones</a>
-                    <a href="creditos.html" class="btn"
-                        id="btnCreditos">Créditos</a>
-                </nav>
+            <nav class="menu">
+                <!-- Agregar botones de navegación y sus enlaces -->
+                <a href="juego.html" class="btn" id="btnJugar">Jugar</a>
+                <a href="acerca.html" class="btn" id="btnAcerca">Acerca
+                    de</a>
+                <a href="opciones.html" class="btn" id="btnOpciones">Opciones</a>
+                <a href="creditos.html" class="btn" id="btnCreditos">Créditos</a>
+            </nav>
 
-                <div class="meta">
-                    <span>Versión 1.0</span> · <span>© Punto y Aparte</span>
-                </div>
-            </section>
+            <div class="meta">
+                <span>Versión 1.0</span> · <span>© Sentence</span>
+            </div>
+        </section>
 
-            <footer class="footer">
-                <p>“Mi pluma lo mató” — <strong>Juan Montalvo</strong></p>
-            </footer>
-        </main>
-    </body>
+        <footer class="footer">
+            <p>“Mi pluma lo mató” — <strong>Juan Montalvo</strong></p>
+        </footer>
+    </main>
+</body>
 
 </html>
