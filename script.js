@@ -277,6 +277,12 @@ function limpiarTexto(s) {
 // INICIO DEL JUEGO
 // ============================================
 function iniciarJuego() {
+  // Obtener la oración seleccionada (si existe) y asignarla al elemento de texto
+  const seleccion = document.querySelector('input[name="oracion"]:checked');
+  if (seleccion && textoOriginalEl) {
+    textoOriginalEl.textContent = seleccion.value;
+  }
+
   document.getElementById('instrucciones').style.display = 'none';
   document.getElementById('hud').style.display = 'grid';
   textoContainer.style.display = 'block';

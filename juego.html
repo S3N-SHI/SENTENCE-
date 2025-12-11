@@ -21,6 +21,13 @@
       <p>📊 Probabilidades: 1/5 → 1/4 → 1/3 → 1/2 → 1/1 (muerte segura)</p>
       <p>⏱️ El cronómetro se pausa durante los videos</p>
       <p style="margin-top: 20px; opacity: 0.8; font-size: 0.9em;">⚠️ No puedes copiar y pegar</p>
+      <!-- Selección de oraciones -->
+      <div class="oraciones-seleccion">
+        <h4>Elige una oración para jugar:</h4>
+        <label><input type="radio" name="oracion" value="La felicidad se puede hallar hasta en los más oscuros momentos, si somos capaces de usar bien la luz." checked> La felicidad se puede hallar hasta en los más oscuros momentos, si somos capaces de usar bien la luz</label><br>
+        <label><input type="radio" name="oracion" value="Las consecuencias de nuestras acciones son siempre tan complicadas, tan diversas, que predecir el futuro resulta ser un negocio muy difícil en sí"> Las consecuencias de nuestras acciones son siempre tan complicadas, tan diversas, que predecir el futuro resulta ser un negocio muy difícil en sí</label><br>
+        <label><input type="radio" name="oracion" value="Cuando la música suena, el corazón comienza a bailar sin aviso."> Cuando la música suena, el corazón comienza a bailar sin aviso.</label>
+      </div>
       <button class="btn-iniciar" onclick="iniciarJuego()">¡COMENZAR LA RULETA!</button>
     </div>
 
@@ -50,11 +57,7 @@
     </div>
 
     <!-- Contenedor de texto superpuesto -->
-    <div class="texto-container" id="textoContainer" style="display: none;" tabindex="0">
-      <div class="texto-original" id="textoOriginal">Cuando de nuestro amor la llama apasionada
-Dentro tu pecho amante, contemples extinguida
-Ya que solo por ti la vida me es amada
-El día en que me faltes me arrancaré la vida.</div>
+      <div class="texto-original" id="textoOriginal"></div>
       <div class="texto-usuario-overlay" id="textoUsuarioOverlay"></div>
     </div>
 
