@@ -1,4 +1,5 @@
 /*Juego */
+
 * {
   margin: 0;
   padding: 0;
@@ -300,6 +301,14 @@ h1 {
   font-size: 1.8em;
 }
 
+.instrucciones h4 {
+  margin: 25px 0 15px 0;
+  color: #f5c16c;
+  font-size: 1.3em;
+  text-align: center;
+  font-weight: bold;
+}
+
 .instrucciones p {
   margin: 12px 0;
   line-height: 1.8;
@@ -311,6 +320,59 @@ h1 {
   font-weight: bold;
   font-size: 1.2em;
   margin: 20px 0;
+}
+
+/* Selección de oraciones */
+.oraciones-seleccion {
+  margin: 25px auto;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  border: 1px solid rgba(245, 193, 108, 0.3);
+  max-width: 700px;
+}
+
+.oraciones-seleccion h4 {
+  margin-bottom: 15px;
+  color: #f5c16c;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.oraciones-seleccion label {
+  display: block;
+  margin: 12px 0;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(245, 193, 108, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  line-height: 1.6;
+  color: #f5c16c;
+}
+
+.oraciones-seleccion label:hover {
+  background: rgba(245, 193, 108, 0.15);
+  border-color: #f5c16c;
+  transform: translateX(5px);
+}
+
+.oraciones-seleccion input[type="radio"] {
+  margin-right: 12px;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: #f5c16c;
+  vertical-align: middle;
+}
+
+.oraciones-seleccion input[type="radio"]:checked + label,
+.oraciones-seleccion label:has(input[type="radio"]:checked) {
+  background: rgba(245, 193, 108, 0.25);
+  border-color: #f5c16c;
+  box-shadow: 0 0 15px rgba(245, 193, 108, 0.3);
 }
 
 .btn-iniciar {
